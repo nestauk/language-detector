@@ -1,16 +1,16 @@
 import re
-# import sys
+import sys
 import pickle
+
 import pandas as pd
-import numpy as np
-# from collections import Counter
-import langid
 from nltk.tokenize import sent_tokenize
+
+import langid
 from guess_language import guess_language
 from langdetect import detect, DetectorFactory
 from langdetect.lang_detect_exception import LangDetectException
-DetectorFactory.seed = 0
 
+DetectorFactory.seed = 0
 REGEX = "http[s]?://(?:[a-z]|[0-9]|[$-_@.&+]|[!*\(\),](?:%[0-9a-f][0-9a-f]))+"
 
 
@@ -53,18 +53,15 @@ def max_chars(documents):
     return max(documents, key=len)
 
 
-def is_string(document):
-    """Return a `bool` showing if the input is string."""
-    return
-
-
-def string_length(document):
-    """Find the number of characters in a string."""
-    return len(document)
-
-
 def detector(document, length=50):
-    """Detect the language of a string."""
+    """Detect the language of a string.
+
+    Args:
+        documents (:obj:`list` of :obj:`str`): List of documents.
+        length (:obj:`int`): Number of characters in a string.
+
+    Return:
+        """
     if isinstance(document, str) and len(remove_links(document)) > length:
         document = remove_links(document)
         document = max_chars(tokenize_sent(document))
@@ -84,15 +81,14 @@ def detector(document, length=50):
 
 
 def main():
-    org_descs = pd.read_csv('../data/raw/organization_descriptions.csv')
+    # Read the organization_descriptions.csv
+    org_descs = pd.read_csv(sys.argv[1])
     lang = []
-    err = []
-    for i, x in enumerate(org_descs.description):
+    for desc in org_descs.description:
         try:
-            lang.append(detector(x))
+            lang.append(detector(desc))
         except Exception as e:
-            print(i, e)
-            err.append(i)
+            print(e)
 
     with open('../data/lang.pickle', 'wb') as h:
         pickle.dump(lang, h)
